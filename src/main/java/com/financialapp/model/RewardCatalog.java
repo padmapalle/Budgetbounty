@@ -28,5 +28,7 @@ public class RewardCatalog {
     @Lob
     private String configuration;
 
-    private boolean isActive;
+    @Column(name = "ACTIVE", nullable = false)
+    private Boolean active;
+
 }

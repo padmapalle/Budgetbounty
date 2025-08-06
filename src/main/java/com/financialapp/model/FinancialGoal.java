@@ -2,6 +2,7 @@ package com.financialapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @NoArgsConstructor
@@ -23,5 +24,9 @@ public class FinancialGoal {
     @Lob
     private String customAttrs;
 
+    @JsonProperty("isAchieved")
     private boolean isAchieved;
+
 }
+
+

@@ -19,6 +19,6 @@ public class FinancialActivity {
     private User user;
 
     private String activityType;
-    private String sourceId;
+
     private LocalDateTime activityDate;
 }

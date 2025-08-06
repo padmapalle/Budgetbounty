@@ -1,8 +1,7 @@
 package com.financialapp.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 
 @Data
 @NoArgsConstructor
@@ -10,7 +9,4 @@ import lombok.AllArgsConstructor;
 public class UserDTO {
     private Integer userId;
     private String email;
-    
-    
-    
 }
