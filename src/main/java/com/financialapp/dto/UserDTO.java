@@ -9,4 +9,6 @@ import lombok.*;
 public class UserDTO {
     private Integer userId;
     private String email;
+    private Boolean appAdmin;
+    private Integer points;
 }

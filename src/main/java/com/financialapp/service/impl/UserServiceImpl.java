@@ -4,6 +4,9 @@ import com.financialapp.dto.UserDTO;
 import com.financialapp.model.User;
 import com.financialapp.repository.UserRepository;
 import com.financialapp.service.UserService;
+
+import jakarta.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,11 +48,21 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         existingUser.setEmail(userDTO.getEmail());
+        existingUser.setAppAdmin(userDTO.getAppAdmin());
+        existingUser.setPoints(userDTO.getPoints()); //
         return modelMapper.map(userRepository.save(existingUser), UserDTO.class);
     }
 
     @Override
     public void deleteUser(Integer userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    @Transactional
+    public UserDTO updatePoints(Integer id, Integer points) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setPoints(points);
+        return modelMapper.map(userRepository.save(user), UserDTO.class);
     }
 }

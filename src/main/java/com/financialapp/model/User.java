@@ -17,4 +17,11 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
     
+    @Column(name = "appAdmin")
+    private Boolean appAdmin;
+    
+    @Column(nullable = false)
+    private Integer points = 0;
+
+    
 }
