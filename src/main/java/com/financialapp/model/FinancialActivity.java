@@ -17,8 +17,10 @@ public class FinancialActivity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
+    @Enumerated(EnumType.STRING)
+    private ActivityType activityType;
 
-    private String activityType;
 
     private LocalDateTime activityDate;
 }

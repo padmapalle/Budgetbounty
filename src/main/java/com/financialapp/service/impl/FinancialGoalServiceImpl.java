@@ -1,15 +1,23 @@
 package com.financialapp.service.impl;
 
 import com.financialapp.dto.FinancialGoalDTO;
+import com.financialapp.dto.RewardDTO;
+import com.financialapp.events.GoalAchievedEvent;
 import com.financialapp.model.FinancialGoal;
 import com.financialapp.model.User;
 import com.financialapp.repository.FinancialGoalRepository;
 import com.financialapp.repository.UserRepository;
 import com.financialapp.service.FinancialGoalService;
+import com.financialapp.service.RewardService;
+
+import jakarta.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +29,12 @@ public class FinancialGoalServiceImpl implements FinancialGoalService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private RewardService rewardService;
+    
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -28,9 +42,14 @@ public class FinancialGoalServiceImpl implements FinancialGoalService {
     @Override
     public FinancialGoalDTO createGoal(FinancialGoalDTO dto) {
         FinancialGoal goal = modelMapper.map(dto, FinancialGoal.class);
-        User user = userRepository.findById(dto.getUserId()).orElseThrow();
-        goal.setUser(user);
-        return modelMapper.map(goalRepository.save(goal), FinancialGoalDTO.class);
+        goal = goalRepository.save(goal);
+
+        // If already achieved at creation, trigger event
+        if (goal.isAchieved()) {
+            eventPublisher.publishEvent(new GoalAchievedEvent(this, goal));
+        }
+
+        return modelMapper.map(goal, FinancialGoalDTO.class);
     }
 
     @Override
@@ -54,14 +73,44 @@ public class FinancialGoalServiceImpl implements FinancialGoalService {
     @Override
     public FinancialGoalDTO updateGoal(Integer id, FinancialGoalDTO dto) {
         FinancialGoal existing = goalRepository.findById(id).orElseThrow();
-        existing.setDomain(dto.getDomain());
+
+
         existing.setCustomAttrs(dto.getCustomAttrs());
+
+        boolean wasAchievedBefore = existing.isAchieved();
         existing.setAchieved(dto.isAchieved());
-        return modelMapper.map(goalRepository.save(existing), FinancialGoalDTO.class);
+
+        FinancialGoal saved = goalRepository.save(existing);
+
+        // If goal just got achieved, publish event
+        if (!wasAchievedBefore && saved.isAchieved()) {
+            eventPublisher.publishEvent(new GoalAchievedEvent(this, saved));
+        }
+
+        return modelMapper.map(saved, FinancialGoalDTO.class);
     }
+
 
     @Override
     public void deleteGoal(Integer id) {
         goalRepository.deleteById(id);
     }
+    
+    @Override
+    @Transactional
+    public FinancialGoalDTO markGoalAsAchieved(Integer id) {
+        FinancialGoal goal = goalRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Goal not found"));
+
+        if (!goal.isAchieved()) {
+            goal.setAchieved(true);
+            goalRepository.save(goal);
+
+            // Trigger event instead of creating reward here
+            eventPublisher.publishEvent(new GoalAchievedEvent(this, goal));
+        }
+
+        return modelMapper.map(goal, FinancialGoalDTO.class);
+    }
+
 }

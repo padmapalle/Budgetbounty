@@ -18,11 +18,11 @@ public class FinancialGoal {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String domain;
-
     @Lob
     private String customAttrs;
+    
+    @Enumerated(EnumType.STRING)
+    private GoalType GoalType;
 
     @JsonProperty("isAchieved")
     private boolean isAchieved;

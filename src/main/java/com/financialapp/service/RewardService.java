@@ -1,6 +1,10 @@
 package com.financialapp.service;
 
 import com.financialapp.dto.RewardDTO;
+import com.financialapp.model.FinancialActivity;
+import com.financialapp.model.FinancialGoal;
+import com.financialapp.model.Reward;
+
 import java.util.List;
 
 public interface RewardService {
@@ -9,4 +13,7 @@ public interface RewardService {
     List<RewardDTO> getAllRewards();
     RewardDTO updateReward(Long id, RewardDTO dto);
     void deleteReward(Long id);
+    Reward createRewardForActivity(FinancialActivity activity, int points);
+    Reward createRewardForGoal(FinancialGoal goal, int points);
+
 }

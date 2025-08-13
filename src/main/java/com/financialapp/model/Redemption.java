@@ -23,7 +23,6 @@ public class Redemption {
     private RewardCatalog catalogItem;
 
     private LocalDateTime redeemedAt;
-    private String status;
 
     @Lob
     private String fulfillmentDetails;
@@ -33,4 +32,8 @@ public class Redemption {
 
     private LocalDateTime expiryDate;
     private String redemptionCode;
+    
+    @Enumerated(EnumType.STRING)
+    private RedemptionStatus status;
+
 }

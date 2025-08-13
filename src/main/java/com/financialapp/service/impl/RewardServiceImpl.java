@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,54 @@ public class RewardServiceImpl implements RewardService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Override
+    @Transactional
+    public Reward createRewardForActivity(FinancialActivity activity, int pointsToAdd) {
+        // 1. Get current points (handles NULL as 0 automatically)
+        int userId = activity.getUser().getUserId();
+        int currentPoints = userRepository.getCurrentPoints(userId);
+        
+        // 2. Create and save reward
+        Reward reward = new Reward();
+        reward.setUser(activity.getUser());
+        reward.setActivity(activity);
+        reward.setPoints(pointsToAdd);
+        reward.setEarnedAt(LocalDateTime.now());
+        rewardRepository.save(reward);
+        
+        // 3. Update user points
+        int newPoints = currentPoints + pointsToAdd;
+        userRepository.updatePoints(userId, newPoints);
+        
+        // 4. Keep in-memory user object consistent
+        activity.getUser().setPoints(newPoints);
+        
+        return reward;
+    }
+
+    @Override
+    @Transactional
+    public Reward createRewardForGoal(FinancialGoal goal, int pointsToAdd) {
+        // Same pattern as above
+        int userId = goal.getUser().getUserId();
+        int currentPoints = userRepository.getCurrentPoints(userId);
+        
+        Reward reward = new Reward();
+        reward.setUser(goal.getUser());
+        reward.setGoal(goal);
+        reward.setPoints(pointsToAdd);
+        reward.setEarnedAt(LocalDateTime.now());
+        rewardRepository.save(reward);
+        
+        int newPoints = currentPoints + pointsToAdd;
+        userRepository.updatePoints(userId, newPoints);
+        goal.getUser().setPoints(newPoints);
+        
+        return reward;
+    }
+
+
+    
     @Override
     @Transactional
     public RewardDTO createReward(RewardDTO dto) {
@@ -82,7 +131,7 @@ public class RewardServiceImpl implements RewardService {
         reward.setEarnedAt(dto.getEarnedAt());
 
         // ✅ Auto-credit points to the user
-        user.setPoints(user.getPoints() + catalogItem.getPointsRequired());
+        user.setPoints(user.getPoints() + dto.getPoints());
         userRepository.save(user);
 
         return modelMapper.map(rewardRepository.save(reward), RewardDTO.class);
@@ -153,4 +202,10 @@ public class RewardServiceImpl implements RewardService {
     public void deleteReward(Long id) {
         rewardRepository.deleteById(id);
     }
+
+
+
+
+
+
 }

@@ -33,6 +33,11 @@ public class FinancialGoalController {
     public FinancialGoalDTO updateGoal(@PathVariable Integer id, @RequestBody FinancialGoalDTO dto) {
         return goalService.updateGoal(id, dto);
     }
+    
+    @PutMapping("/{id}/achieve")
+    public FinancialGoalDTO markGoalAsAchieved(@PathVariable Integer id) {
+        return goalService.markGoalAsAchieved(id);
+    }
 
     @DeleteMapping("/{id}")
     public void deleteGoal(@PathVariable Integer id) {

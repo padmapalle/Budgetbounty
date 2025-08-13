@@ -2,6 +2,7 @@ package com.financialapp.dto;
 
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.financialapp.model.GoalType;
 
 @Data
 @NoArgsConstructor
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FinancialGoalDTO {
     private Integer goalId;
     private Integer userId;
-    private String domain;
+    private GoalType GoalType; 
     private String customAttrs;
     
     @JsonProperty("isAchieved")

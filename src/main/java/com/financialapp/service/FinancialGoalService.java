@@ -9,4 +9,6 @@ public interface FinancialGoalService {
     List<FinancialGoalDTO> getAllGoals();
     FinancialGoalDTO updateGoal(Integer id, FinancialGoalDTO dto);
     void deleteGoal(Integer id);
+
+    FinancialGoalDTO markGoalAsAchieved(Integer id);
 }

@@ -3,13 +3,15 @@ package com.financialapp.dto;
 import lombok.*;
 import java.time.LocalDateTime;
 
+import com.financialapp.model.ActivityType;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinancialActivityDTO {
     private Integer activityId;
     private Integer userId;
-    private String activityType;
+    private ActivityType activityType;  
 
     private LocalDateTime activityDate;
 }

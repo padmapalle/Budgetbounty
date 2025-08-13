@@ -3,6 +3,7 @@ package com.financialapp.service.impl;
 import com.financialapp.dto.RedemptionDTO;
 import com.financialapp.model.RewardCatalog;
 import com.financialapp.model.Redemption;
+import com.financialapp.model.RedemptionStatus;
 import com.financialapp.model.User;
 import com.financialapp.repository.RedemptionRepository;
 import com.financialapp.repository.RewardCatalogRepository;
@@ -43,21 +44,23 @@ public class RedemptionServiceImpl implements RedemptionService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Catalog item is inactive or does not exist: " + dto.getCatalogItemId()));
 
-        // Points check
-        if (user.getPoints() < catalogItem.getPointsRequired()) {
-            throw new IllegalStateException("Insufficient points to redeem this item.");
+        RedemptionStatus status = dto.getStatus() != null ? dto.getStatus() : RedemptionStatus.PENDING;
+
+        // Points check + deduct only if creating directly with SUCCESS status
+        if (status == RedemptionStatus.SUCCESS) {
+            if (user.getPoints() < catalogItem.getPointsRequired()) {
+                throw new IllegalStateException("Insufficient points to redeem this item.");
+            }
+            user.setPoints(user.getPoints() - catalogItem.getPointsRequired());
+            userRepository.save(user);
         }
 
-        // Deduct points
-        user.setPoints(user.getPoints() - catalogItem.getPointsRequired());
-        userRepository.save(user);
-
-        // Create redemption
         Redemption redemption = new Redemption();
         redemption.setUser(user);
         redemption.setCatalogItem(catalogItem);
-        redemption.setRedeemedAt(dto.getRedeemedAt() != null ? dto.getRedeemedAt() : LocalDateTime.now());
-        redemption.setStatus(dto.getStatus() != null ? dto.getStatus() : "PENDING");
+        redemption.setRedeemedAt(dto.getRedeemedAt() != null ? dto.getRedeemedAt() :
+                (status == RedemptionStatus.SUCCESS ? LocalDateTime.now() : null));
+        redemption.setStatus(status);
         redemption.setFulfillmentDetails(dto.getFulfillmentDetails());
         redemption.setFailureReason(dto.getFailureReason());
         redemption.setExpiryDate(dto.getExpiryDate());
@@ -66,22 +69,11 @@ public class RedemptionServiceImpl implements RedemptionService {
         Redemption saved = redemptionRepository.save(redemption);
 
         RedemptionDTO out = modelMapper.map(saved, RedemptionDTO.class);
-        // ensure DTO contains ids for nested objects
         out.setUserId(saved.getUser().getUserId());
         if (saved.getCatalogItem() != null) out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
         return out;
     }
-
-    @Override
-    public RedemptionDTO getRedemptionById(Integer id) {
-        Redemption saved = redemptionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Redemption not found"));
-        RedemptionDTO out = modelMapper.map(saved, RedemptionDTO.class);
-        out.setUserId(saved.getUser().getUserId());
-        if (saved.getCatalogItem() != null) out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
-        return out;
-    }
-
+    
     @Override
     public List<RedemptionDTO> getAllRedemptions() {
         return redemptionRepository.findAll()
@@ -89,17 +81,29 @@ public class RedemptionServiceImpl implements RedemptionService {
                 .map(r -> {
                     RedemptionDTO dto = modelMapper.map(r, RedemptionDTO.class);
                     dto.setUserId(r.getUser().getUserId());
-                    if (r.getCatalogItem() != null) dto.setCatalogItemId(r.getCatalogItem().getCatalogItemId());
+                    if (r.getCatalogItem() != null) {
+                        dto.setCatalogItemId(r.getCatalogItem().getCatalogItemId());
+                    }
                     return dto;
                 })
-                .collect(Collectors.toList());
+                .toList();
+    }
+    
+    @Override
+    public RedemptionDTO getRedemptionById(Integer id) {
+        Redemption saved = redemptionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Redemption not found"));
+        RedemptionDTO out = modelMapper.map(saved, RedemptionDTO.class);
+        out.setUserId(saved.getUser().getUserId());
+        if (saved.getCatalogItem() != null) {
+            out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
+        }
+        return out;
     }
 
-    /**
-     * Update redemption with safe point handling.
-     * - Handles catalog change (refund old points, deduct new points)
-     * - Handles status transitions (refund on FAILED/REFUNDED, re-deduct otherwise)
-     */
+
+
+
     @Override
     @Transactional
     public RedemptionDTO updateRedemption(Integer id, RedemptionDTO dto) {
@@ -110,7 +114,6 @@ public class RedemptionServiceImpl implements RedemptionService {
         RewardCatalog oldCatalog = existing.getCatalogItem();
         int oldCost = oldCatalog != null ? oldCatalog.getPointsRequired() : 0;
 
-        // Determine new catalog item (could be same)
         RewardCatalog newCatalog = oldCatalog;
         if (dto.getCatalogItemId() != null) {
             newCatalog = catalogRepository.findByCatalogItemIdAndActiveTrue(dto.getCatalogItemId())
@@ -119,17 +122,18 @@ public class RedemptionServiceImpl implements RedemptionService {
         }
         int newCost = newCatalog != null ? newCatalog.getPointsRequired() : 0;
 
-        String oldStatus = existing.getStatus() != null ? existing.getStatus().toUpperCase() : null;
-        String newStatus = dto.getStatus() != null ? dto.getStatus().toUpperCase() : oldStatus;
+        RedemptionStatus oldStatus = existing.getStatus();
+        RedemptionStatus newStatus = dto.getStatus() != null ? dto.getStatus() : oldStatus;
 
-        // 1) Handle catalog change -> refund old and deduct new (net)
+        boolean oldWasRefunded = oldStatus == RedemptionStatus.FAILED || oldStatus == RedemptionStatus.REFUNDED;
+        boolean newIsRefunded = newStatus == RedemptionStatus.FAILED || newStatus == RedemptionStatus.REFUNDED;
+
+        // Catalog change logic
         if (newCatalog != oldCatalog) {
-            // Refund old cost (if any)
-            if (oldCost > 0) {
+            if (oldCost > 0 && oldStatus == RedemptionStatus.SUCCESS) {
                 user.setPoints(user.getPoints() + oldCost);
             }
-            // Attempt to deduct new cost
-            if (newCost > 0) {
+            if (newCost > 0 && newStatus == RedemptionStatus.SUCCESS) {
                 if (user.getPoints() < newCost) {
                     throw new IllegalStateException("Insufficient points to switch to new catalog item.");
                 }
@@ -138,62 +142,58 @@ public class RedemptionServiceImpl implements RedemptionService {
             existing.setCatalogItem(newCatalog);
         }
 
-        // 2) Handle status transitions and refunds
-        boolean oldWasRefunded = oldStatus != null && (oldStatus.equals("FAILED") || oldStatus.equals("REFUNDED"));
-        boolean newIsRefunded = newStatus != null && (newStatus.equals("FAILED") || newStatus.equals("REFUNDED"));
-
-        // If moving to refunded/failed from a non-refunded state -> refund points (points were deducted at creation)
-        if (!oldWasRefunded && newIsRefunded) {
-            // refund only if not already refunded via catalog-change logic above
-            if (newCost > 0) {
-                user.setPoints(user.getPoints() + newCost);
+        // Status change logic
+        if (oldStatus == RedemptionStatus.PENDING && newStatus == RedemptionStatus.SUCCESS) {
+            if (user.getPoints() < newCost) {
+                throw new IllegalStateException("Insufficient points to complete redemption.");
             }
+            user.setPoints(user.getPoints() - newCost);
         }
 
-        // If moving from refunded/failed to non-refunded -> re-deduct points
-        if (oldWasRefunded && !newIsRefunded) {
-            if (newCost > 0) {
-                if (user.getPoints() < newCost) {
-                    throw new IllegalStateException("Insufficient points to re-apply redemption after status change.");
-                }
-                user.setPoints(user.getPoints() - newCost);
-            }
+        if (oldStatus == RedemptionStatus.SUCCESS && newIsRefunded) {
+            user.setPoints(user.getPoints() + newCost);
         }
 
-        // Apply user save (points changes)
+        if (oldWasRefunded && newStatus == RedemptionStatus.SUCCESS) {
+            if (user.getPoints() < newCost) {
+                throw new IllegalStateException("Insufficient points to re-apply redemption.");
+            }
+            user.setPoints(user.getPoints() - newCost);
+        }
+
         userRepository.save(user);
 
-        // Update redemption fields
-        if (dto.getRedeemedAt() != null) existing.setRedeemedAt(dto.getRedeemedAt());
-        else if (existing.getRedeemedAt() == null && "SUCCESS".equalsIgnoreCase(newStatus)) {
-            existing.setRedeemedAt(LocalDateTime.now());
-        }
-
+        // Update redemption
         existing.setStatus(newStatus);
         existing.setFulfillmentDetails(dto.getFulfillmentDetails());
         existing.setFailureReason(dto.getFailureReason());
         existing.setExpiryDate(dto.getExpiryDate());
-
-        // Update or generate redemption code
         if (dto.getRedemptionCode() != null && !dto.getRedemptionCode().isBlank()) {
             existing.setRedemptionCode(dto.getRedemptionCode());
         } else if (existing.getRedemptionCode() == null) {
             existing.setRedemptionCode(generateRedemptionCode());
         }
-
-        // allow changing user if provided (rare)
+        if (dto.getRedeemedAt() != null) {
+            existing.setRedeemedAt(dto.getRedeemedAt());
+        } else if (existing.getRedeemedAt() == null && newStatus == RedemptionStatus.SUCCESS) {
+            existing.setRedeemedAt(LocalDateTime.now());
+        }
         if (dto.getUserId() != null && !dto.getUserId().equals(user.getUserId())) {
-            User newUser = userRepository.findById(dto.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+            User newUser = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
             existing.setUser(newUser);
         }
 
         Redemption saved = redemptionRepository.save(existing);
-
         RedemptionDTO out = modelMapper.map(saved, RedemptionDTO.class);
         out.setUserId(saved.getUser().getUserId());
-        if (saved.getCatalogItem() != null) out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
+        if (saved.getCatalogItem() != null) {
+            out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
+        }
         return out;
     }
+
+
 
     @Override
     public void deleteRedemption(Integer id) {
@@ -204,4 +204,6 @@ public class RedemptionServiceImpl implements RedemptionService {
     private String generateRedemptionCode() {
         return "BB-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
+
+	
 }

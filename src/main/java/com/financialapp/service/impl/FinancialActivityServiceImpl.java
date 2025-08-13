@@ -1,6 +1,7 @@
 package com.financialapp.service.impl;
 
 import com.financialapp.dto.FinancialActivityDTO;
+import com.financialapp.events.ActivityCreatedEvent;
 import com.financialapp.model.FinancialActivity;
 import com.financialapp.model.User;
 import com.financialapp.repository.FinancialActivityRepository;
@@ -8,6 +9,7 @@ import com.financialapp.repository.UserRepository;
 import com.financialapp.service.FinancialActivityService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,9 @@ public class FinancialActivityServiceImpl implements FinancialActivityService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -30,6 +35,11 @@ public class FinancialActivityServiceImpl implements FinancialActivityService {
         FinancialActivity activity = modelMapper.map(dto, FinancialActivity.class);
         User user = userRepository.findById(dto.getUserId()).orElseThrow();
         activity.setUser(user);
+        // Save activity first
+        activity = activityRepository.save(activity);
+
+        // ✅ Publish the event
+        eventPublisher.publishEvent(new ActivityCreatedEvent(this, activity));
         return modelMapper.map(activityRepository.save(activity), FinancialActivityDTO.class);
     }
 
@@ -53,11 +63,20 @@ public class FinancialActivityServiceImpl implements FinancialActivityService {
     @Override
     public FinancialActivityDTO update(Integer id, FinancialActivityDTO dto) {
         FinancialActivity existing = activityRepository.findById(id).orElseThrow();
-        existing.setActivityType(dto.getActivityType());
 
-        existing.setActivityDate(dto.getActivityDate());
-        return modelMapper.map(activityRepository.save(existing), FinancialActivityDTO.class);
+        // Map DTO fields to existing entity (updates all mapped fields)
+        modelMapper.map(dto, existing);
+
+        // Save updated entity
+        FinancialActivity saved = activityRepository.save(existing);
+
+        // Map saved entity back to DTO
+        FinancialActivityDTO updatedDto = modelMapper.map(saved, FinancialActivityDTO.class);
+        updatedDto.setUserId(saved.getUser().getUserId());
+
+        return updatedDto;
     }
+
 
     @Override
     public void delete(Integer id) {
