@@ -39,7 +39,7 @@ public class RedemptionServiceImpl implements RedemptionService {
             LocalDateTime redeemedAt = redeemedAtFromDto != null ? redeemedAtFromDto : LocalDateTime.now();
             redemption.setRedeemedAt(redeemedAt);
 
-            // Calculate expiry date based on partner-defined validity duration (in days/weeks)
+            // Calculate expire date based on partner-defined validity duration (in days/weeks)
             Integer validityDays = redemption.getCatalogItem().getValidityDuration(); // e.g., store duration in catalog
             if (validityDays != null) {
                 redemption.setExpiryDate(redeemedAt.plusDays(validityDays));
@@ -47,7 +47,7 @@ public class RedemptionServiceImpl implements RedemptionService {
                 redemption.setExpiryDate(null);
             }
         } else {
-            // Non-successful redemptions should have null dates
+            // Non-successful Redemption should have null dates
             redemption.setRedeemedAt(null);
             redemption.setExpiryDate(null);
         }
