@@ -33,6 +33,26 @@ public class RedemptionServiceImpl implements RedemptionService {
 
     @Autowired
     private ModelMapper modelMapper;
+    
+    private void applyRedemptionDates(Redemption redemption, RedemptionStatus status, LocalDateTime redeemedAtFromDto) {
+        if (status == RedemptionStatus.SUCCESS) {
+            LocalDateTime redeemedAt = redeemedAtFromDto != null ? redeemedAtFromDto : LocalDateTime.now();
+            redemption.setRedeemedAt(redeemedAt);
+
+            // Calculate expiry date based on partner-defined validity duration (in days/weeks)
+            Integer validityDays = redemption.getCatalogItem().getValidityDuration(); // e.g., store duration in catalog
+            if (validityDays != null) {
+                redemption.setExpiryDate(redeemedAt.plusDays(validityDays));
+            } else {
+                redemption.setExpiryDate(null);
+            }
+        } else {
+            // Non-successful redemptions should have null dates
+            redemption.setRedeemedAt(null);
+            redemption.setExpiryDate(null);
+        }
+    }
+
 
     @Override
     @Transactional
@@ -58,13 +78,13 @@ public class RedemptionServiceImpl implements RedemptionService {
         Redemption redemption = new Redemption();
         redemption.setUser(user);
         redemption.setCatalogItem(catalogItem);
-        redemption.setRedeemedAt(dto.getRedeemedAt() != null ? dto.getRedeemedAt() :
-                (status == RedemptionStatus.SUCCESS ? LocalDateTime.now() : null));
         redemption.setStatus(status);
         redemption.setFulfillmentDetails(dto.getFulfillmentDetails());
         redemption.setFailureReason(dto.getFailureReason());
-        redemption.setExpiryDate(dto.getExpiryDate());
         redemption.setRedemptionCode(dto.getRedemptionCode() != null ? dto.getRedemptionCode() : generateRedemptionCode());
+
+     // Apply dates according to status
+        applyRedemptionDates(redemption, status, dto.getRedeemedAt());
 
         Redemption saved = redemptionRepository.save(redemption);
 
@@ -73,6 +93,7 @@ public class RedemptionServiceImpl implements RedemptionService {
         if (saved.getCatalogItem() != null) out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
         return out;
     }
+
     
     @Override
     public List<RedemptionDTO> getAllRedemptions() {
@@ -102,8 +123,6 @@ public class RedemptionServiceImpl implements RedemptionService {
     }
 
 
-
-
     @Override
     @Transactional
     public RedemptionDTO updateRedemption(Integer id, RedemptionDTO dto) {
@@ -114,6 +133,7 @@ public class RedemptionServiceImpl implements RedemptionService {
         RewardCatalog oldCatalog = existing.getCatalogItem();
         int oldCost = oldCatalog != null ? oldCatalog.getPointsRequired() : 0;
 
+        // Determine new catalog
         RewardCatalog newCatalog = oldCatalog;
         if (dto.getCatalogItemId() != null) {
             newCatalog = catalogRepository.findByCatalogItemIdAndActiveTrue(dto.getCatalogItemId())
@@ -128,7 +148,7 @@ public class RedemptionServiceImpl implements RedemptionService {
         boolean oldWasRefunded = oldStatus == RedemptionStatus.FAILED || oldStatus == RedemptionStatus.REFUNDED;
         boolean newIsRefunded = newStatus == RedemptionStatus.FAILED || newStatus == RedemptionStatus.REFUNDED;
 
-        // Catalog change logic
+        // -------- Catalog change logic --------
         if (newCatalog != oldCatalog) {
             if (oldCost > 0 && oldStatus == RedemptionStatus.SUCCESS) {
                 user.setPoints(user.getPoints() + oldCost);
@@ -142,7 +162,7 @@ public class RedemptionServiceImpl implements RedemptionService {
             existing.setCatalogItem(newCatalog);
         }
 
-        // Status change logic
+        // -------- Status change logic --------
         if (oldStatus == RedemptionStatus.PENDING && newStatus == RedemptionStatus.SUCCESS) {
             if (user.getPoints() < newCost) {
                 throw new IllegalStateException("Insufficient points to complete redemption.");
@@ -163,21 +183,30 @@ public class RedemptionServiceImpl implements RedemptionService {
 
         userRepository.save(user);
 
-        // Update redemption
+        // -------- Dates handling --------
+        if (newStatus == RedemptionStatus.SUCCESS) {
+            LocalDateTime now = LocalDateTime.now();
+            existing.setRedeemedAt(existing.getRedeemedAt() != null ? existing.getRedeemedAt() : now);
+
+            if (newCatalog.getValidityDuration() != null) {
+                existing.setExpiryDate(existing.getRedeemedAt().plusDays(newCatalog.getValidityDuration()));
+            }
+        } else {
+            existing.setRedeemedAt(null);
+            existing.setExpiryDate(null);
+        }
+
+        // -------- Update redemption details --------
         existing.setStatus(newStatus);
         existing.setFulfillmentDetails(dto.getFulfillmentDetails());
         existing.setFailureReason(dto.getFailureReason());
-        existing.setExpiryDate(dto.getExpiryDate());
+
         if (dto.getRedemptionCode() != null && !dto.getRedemptionCode().isBlank()) {
             existing.setRedemptionCode(dto.getRedemptionCode());
         } else if (existing.getRedemptionCode() == null) {
             existing.setRedemptionCode(generateRedemptionCode());
         }
-        if (dto.getRedeemedAt() != null) {
-            existing.setRedeemedAt(dto.getRedeemedAt());
-        } else if (existing.getRedeemedAt() == null && newStatus == RedemptionStatus.SUCCESS) {
-            existing.setRedeemedAt(LocalDateTime.now());
-        }
+
         if (dto.getUserId() != null && !dto.getUserId().equals(user.getUserId())) {
             User newUser = userRepository.findById(dto.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -185,14 +214,15 @@ public class RedemptionServiceImpl implements RedemptionService {
         }
 
         Redemption saved = redemptionRepository.save(existing);
+
         RedemptionDTO out = modelMapper.map(saved, RedemptionDTO.class);
         out.setUserId(saved.getUser().getUserId());
         if (saved.getCatalogItem() != null) {
             out.setCatalogItemId(saved.getCatalogItem().getCatalogItemId());
         }
+
         return out;
     }
-
 
 
     @Override

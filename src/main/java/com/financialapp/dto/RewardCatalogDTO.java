@@ -12,8 +12,8 @@ public class RewardCatalogDTO {
     private String rewardType;
     private Integer pointsRequired;
     private Integer partnerId; // Only the ID for simplicity
-    private LocalDateTime validFrom;
-    private LocalDateTime validTo;
+
     private String configuration;
     private boolean active;
+    private Integer validityDuration; 
 }

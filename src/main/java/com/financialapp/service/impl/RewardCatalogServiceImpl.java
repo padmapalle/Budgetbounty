@@ -55,8 +55,6 @@ public class RewardCatalogServiceImpl implements RewardCatalogService {
         existing.setName(dto.getName());
         existing.setRewardType(dto.getRewardType());
         existing.setPointsRequired(dto.getPointsRequired());
-        existing.setValidFrom(dto.getValidFrom());
-        existing.setValidTo(dto.getValidTo());
         existing.setConfiguration(dto.getConfiguration());
         existing.setActive(dto.isActive());
 

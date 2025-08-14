@@ -4,5 +4,6 @@ public enum RedemptionStatus {
     PENDING,
     SUCCESS,
     FAILED,
-    REFUNDED
+    REFUNDED,
+    EXPIRED
 }

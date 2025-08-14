@@ -22,13 +22,14 @@ public class RewardCatalog {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
-    private LocalDateTime validFrom;
-    private LocalDateTime validTo;
-
     @Lob
     private String configuration;
 
     @Column(name = "ACTIVE", nullable = false)
     private Boolean active;
+    
+    @Column(name = "validity_duration")
+    private Integer validityDuration; 
+
 
 }
