@@ -38,4 +38,10 @@ public class RewardController {
     public void deleteReward(@PathVariable Long id) {
         rewardService.deleteReward(id);
     }
+    
+    // New endpoint to get rewards by user ID
+    @GetMapping("/user/{userId}")
+    public List<RewardDTO> getRewardsByUserId(@PathVariable Integer userId) {
+        return rewardService.getRewardsByUserId(userId);
+    }
 }

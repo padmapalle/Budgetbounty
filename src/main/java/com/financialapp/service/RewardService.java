@@ -16,4 +16,5 @@ public interface RewardService {
     Reward createRewardForActivity(FinancialActivity activity, int points);
     Reward createRewardForGoal(FinancialGoal goal, int points);
 
+    List<RewardDTO> getRewardsByUserId(Integer userId);
 }

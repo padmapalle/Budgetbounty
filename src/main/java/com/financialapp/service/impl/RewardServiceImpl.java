@@ -203,7 +203,14 @@ public class RewardServiceImpl implements RewardService {
         rewardRepository.deleteById(id);
     }
 
-
+    @Override
+    public List<RewardDTO> getRewardsByUserId(Integer userId) {
+        
+        return rewardRepository.findByUser_UserId(userId)
+                .stream()
+                .map(reward -> modelMapper.map(reward, RewardDTO.class))
+                .collect(Collectors.toList());
+    }
 
 
 

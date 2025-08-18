@@ -23,4 +23,11 @@ public class FinancialActivity {
 
 
     private LocalDateTime activityDate;
+    
+    @PrePersist
+    public void prePersist() {
+        if (activityDate == null) {
+            activityDate = LocalDateTime.now();
+        }
+    }
 }
