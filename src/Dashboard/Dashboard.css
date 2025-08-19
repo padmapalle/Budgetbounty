@@ -1,0 +1,126 @@
+/* .dashboard {
+  text-align: center;
+}
+
+.dashboard h2 {
+  color: var(--purple-main); 
+
+.intro-text {
+  max-width: 600px;
+  margin: 10px auto 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 40px;
+  flex: 1 1 300px;
+  font-size: 1.3rem;
+  min-height: 180px;
+  max-width: 350px;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  color: var(--purple-main);
+}
+
+.card p {
+}
+
+.logged-out-container {
+  text-align: center;
+  margin-top: 50px;
+  color: var(--purple-main);
+} */
+
+/* src/Dashboard/Dashboard.css */
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.welcome-header {
+  font-size: 2rem;
+  color: var(--purple-main);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.intro-text {
+  max-width: 600px;
+  margin: 0 auto 40px auto;
+  font-size: 1.1rem;
+  color: #555;
+  text-align: center;
+}
+
+/* New Grid Layout for the cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+/* Updated Card Styling */
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* <-- This line is now fixed */
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+.card-icon {
+  font-size: 3rem; /* 48px */
+}
+
+.card-content h3 {
+  margin: 0 0 5px 0;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.card-content .big-number {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--purple-main);
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.5rem;
+  padding: 50px;
+  color: var(--purple-main);
+}
+
+/* Style for the clickable card links */
+.summary-card-link {
+  text-decoration: none; /* Removes the underline from the link */
+}
