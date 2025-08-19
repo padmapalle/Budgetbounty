@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # BudgetBounty
 
 ## Getting Started
@@ -89,3 +90,8 @@ If installing manually, place the JAR in your local Maven repo
 ### 6. Accessing the App
 - The application will run at: [http://localhost:8081](http://localhost:8081)
 
+=======
+# BudgetBounty_NatWest_2025
+
+NatWest BudgetBounty 2025
+>>>>>>> bccbf523ba27853233817b00bbbcb44f49783dc4
