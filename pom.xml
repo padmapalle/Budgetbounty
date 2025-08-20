@@ -51,6 +51,7 @@
 		</dependency>
 		
 		<dependency>
+<<<<<<< HEAD
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>3.1.1</version>
@@ -62,12 +63,27 @@
 			<scope>provided</scope>
 		</dependency>
 		
+=======
+    <groupId>org.modelmapper</groupId>
+    <artifactId>modelmapper</artifactId>
+    <version>3.1.1</version>
+</dependency>
+
+		
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+
+    <scope>provided</scope>
+</dependency>
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		
+<<<<<<< HEAD
 		<!-- H2 Database for testing -->
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -80,6 +96,17 @@
 			<artifactId>ojdbc11</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+=======
+		<dependency>
+    <groupId>com.oracle.database.jdbc</groupId>
+    <artifactId>ojdbc11</artifactId>
+
+    <scope>runtime</scope>
+</dependency>
+
+
+
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
 	</dependencies>
 
 	<build>
@@ -111,4 +138,8 @@
 		</plugins>
 	</build>
 
+<<<<<<< HEAD
 </project>
+=======
+</project>
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4

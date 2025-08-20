@@ -1,9 +1,15 @@
 package com.financialapp.service.impl;
 
 import com.financialapp.dto.FinancialActivityDTO;
+<<<<<<< HEAD
 import com.financialapp.entity.FinancialActivity;
 import com.financialapp.entity.User;
 import com.financialapp.events.ActivityCreatedEvent;
+=======
+import com.financialapp.events.ActivityCreatedEvent;
+import com.financialapp.model.FinancialActivity;
+import com.financialapp.model.User;
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
 import com.financialapp.repository.FinancialActivityRepository;
 import com.financialapp.repository.UserRepository;
 import com.financialapp.service.FinancialActivityService;

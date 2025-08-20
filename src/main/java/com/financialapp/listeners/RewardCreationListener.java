@@ -1,11 +1,20 @@
 package com.financialapp.listeners;
 
+<<<<<<< HEAD
 import com.financialapp.entity.ActivityType;
 import com.financialapp.entity.FinancialActivity;
 import com.financialapp.entity.FinancialGoal;
 import com.financialapp.entity.Reward;
 import com.financialapp.events.ActivityCreatedEvent;
 import com.financialapp.events.GoalAchievedEvent;
+=======
+import com.financialapp.events.ActivityCreatedEvent;
+import com.financialapp.events.GoalAchievedEvent;
+import com.financialapp.model.ActivityType;
+import com.financialapp.model.FinancialActivity;
+import com.financialapp.model.FinancialGoal;
+import com.financialapp.model.Reward;
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
 import com.financialapp.service.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;

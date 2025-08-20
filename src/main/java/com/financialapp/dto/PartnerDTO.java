@@ -1,7 +1,10 @@
 package com.financialapp.dto;
 
+<<<<<<< HEAD
 import java.util.function.IntPredicate;
 
+=======
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
 import lombok.*;
 
 @Data
@@ -11,6 +14,7 @@ public class PartnerDTO {
     private Integer partnerId;
     private String name;
     private String apiKey;
+<<<<<<< HEAD
     // Remove email, status, and id fields since they weren't in your original
     // These methods suggest they might be handled differently
     public IntPredicate getEmail() {
@@ -34,3 +38,6 @@ public class PartnerDTO {
     public void setStatus(String status) {
     }
 }
+=======
+}
+>>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
