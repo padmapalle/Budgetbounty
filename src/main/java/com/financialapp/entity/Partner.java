@@ -15,6 +15,7 @@ public class Partner {
 
     private String name;
     private String apiKey;
+<<<<<<< HEAD
 
     // Add this method to satisfy Spring Data JPA
     public Integer getId() {
@@ -26,3 +27,10 @@ public class Partner {
         return null;
     }
 }
+=======
+	public static Object builder() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)

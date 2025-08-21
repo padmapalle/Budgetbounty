@@ -52,6 +52,9 @@
 		
 		<dependency>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>3.1.1</version>
@@ -63,6 +66,7 @@
 			<scope>provided</scope>
 		</dependency>
 		
+<<<<<<< HEAD
 =======
     <groupId>org.modelmapper</groupId>
     <artifactId>modelmapper</artifactId>
@@ -77,6 +81,8 @@
     <scope>provided</scope>
 </dependency>
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -84,6 +90,9 @@
 		</dependency>
 		
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 		<!-- H2 Database for testing -->
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -96,6 +105,7 @@
 			<artifactId>ojdbc11</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+<<<<<<< HEAD
 =======
 		<dependency>
     <groupId>com.oracle.database.jdbc</groupId>
@@ -107,6 +117,8 @@
 
 
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 	</dependencies>
 
 	<build>
@@ -139,7 +151,11 @@
 	</build>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 </project>
 =======
 </project>
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+</project>
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)

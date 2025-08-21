@@ -8,12 +8,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.financialapp.entity.Redemption;
 import com.financialapp.entity.RedemptionStatus;
 =======
 import com.financialapp.model.Redemption;
 import com.financialapp.model.RedemptionStatus;
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+import com.financialapp.entity.Redemption;
+import com.financialapp.entity.RedemptionStatus;
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 import com.financialapp.repository.RedemptionRepository;
 import com.financialapp.service.RedemptionService;
 

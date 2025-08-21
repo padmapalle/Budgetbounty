@@ -3,6 +3,7 @@ package com.financialapp;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
@@ -16,6 +17,8 @@ class RewardsSystemApplicationTests {
 }
 	
 =======
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 
 @SpringBootTest
 class RewardsSystemApplicationTests {
@@ -25,4 +28,7 @@ class RewardsSystemApplicationTests {
 	}
 
 }
+<<<<<<< HEAD
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)

@@ -3,10 +3,14 @@ package com.financialapp.dto;
 import lombok.*;
 import java.time.LocalDateTime;
 
+<<<<<<< HEAD
 
 import com.financialapp.entity.RedemptionStatus;
 import com.financialapp.model.RedemptionStatus;
 
+=======
+import com.financialapp.entity.RedemptionStatus;
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 
 @Data
 @NoArgsConstructor

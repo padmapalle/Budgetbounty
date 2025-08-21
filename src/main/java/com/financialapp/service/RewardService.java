@@ -2,6 +2,7 @@ package com.financialapp.service;
 
 import com.financialapp.dto.RewardDTO;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.financialapp.entity.FinancialActivity;
 import com.financialapp.entity.FinancialGoal;
 import com.financialapp.entity.Reward;
@@ -10,6 +11,11 @@ import com.financialapp.model.FinancialActivity;
 import com.financialapp.model.FinancialGoal;
 import com.financialapp.model.Reward;
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+import com.financialapp.entity.FinancialActivity;
+import com.financialapp.entity.FinancialGoal;
+import com.financialapp.entity.Reward;
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 
 import java.util.List;
 

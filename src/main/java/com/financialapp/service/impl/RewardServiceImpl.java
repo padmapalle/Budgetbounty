@@ -2,10 +2,14 @@ package com.financialapp.service.impl;
 
 import com.financialapp.dto.RewardDTO;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.financialapp.entity.*;
 =======
 import com.financialapp.model.*;
 >>>>>>> 3212540b9f8b79d2607519db820b5cd72cd061e4
+=======
+import com.financialapp.entity.*;
+>>>>>>> 2ac909d (Initial commit: Eclipse rewards system project)
 import com.financialapp.repository.*;
 import com.financialapp.service.RewardService;
 
